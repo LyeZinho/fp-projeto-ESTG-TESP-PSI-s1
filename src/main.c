@@ -132,7 +132,7 @@ Segue o roadmap detalhado para a implementação do projeto, com os passos neces
 
 ---
 
-### **2. Desenvolvimento de Funcionalidades Básicas** (fei
+### **2. Desenvolvimento de Funcionalidades Básicas** (feito)
 1. **Gerenciamento de Estudantes:**
    - **Registrar estudante:**
      - Criar função para adicionar um novo estudante.
@@ -164,7 +164,7 @@ Segue o roadmap detalhado para a implementação do projeto, com os passos neces
 
 ---
 
-### **3. Implementação das Estatísticas** 
+### **3. Implementação das Estatísticas**  (feito)
 1. **Estatísticas por Estudante:**
    - Criar funções para:
      - Total de submissões realizadas.
@@ -173,23 +173,23 @@ Segue o roadmap detalhado para a implementação do projeto, com os passos neces
 
 ---
 
-### **4. Persistência de Dados**
+### **4. Persistência de Dados** (pendente)
 1. **Leitura de Arquivos Binários:**
    - Criar função para carregar dados salvos ao iniciar a aplicação.
    - Validar integridade dos dados lidos.
 
-2. **Gravação em Arquivos Binários:**
+2. **Gravação em Arquivos Binários:** (pendente)
    - Criar função para salvar dados em arquivo ao encerrar a aplicação ou sob demanda.
 
 ---
 
-### **5. Validações e Boas Práticas**
+### **5. Validações e Boas Práticas** (feito)
 1. **Validação de Dados:**
    - Criar funções auxiliares para validar:
      - Emails, datas e valores únicos.
      - Limites de cada estrutura (100 estudantes, etc.).
 
-2. **Boas Práticas:**
+2. **Boas Práticas:** (feito)
    - Evitar variáveis globais.
    - Garantir modularidade.
    - Documentar todas as funções com comentários.
@@ -373,37 +373,67 @@ typedef struct
 
 #pragma region Macros
 
-#define TAMANHO_ARRAY(arr) (sizeof(arr) / sizeof((arr)[0])) // Macro para obter o tamanho de um array tipo qualquer
+   #define TAMANHO_ARRAY(arr) (sizeof(arr) / sizeof((arr)[0])) // Macro para obter o tamanho de um array tipo qualquer
 
 #pragma endregion
 
 #pragma region Protótipos de Funções
 
-// Funções para registar e consultar dados
-void registarEstudante(User *users, int *n_users);
-void consultarEstudante(User *users, int n_users);
+   // Funções Genéricas
+   int escreverFicheiroBinario(char *nome_ficheiro, void *dados, int tamanho_dados);
+   int lerFicheiroBinario(char *nome_ficheiro, void *dados, int tamanho_dados);
+   void receberString(char *mensagem, char *string, int tamanho);
+   int receberInteiro(char *mensagem);
+   float receberFloat(char *mensagem);
+   bool validarEmail(char *email);
+   bool validarData(char *data);
 
-// Funções para registar e consultar fichas de exercícios
-void registarFichaExercicios(FichaExercicios *fichas, int *n_fichas);
-void consultarFichaExercicios(FichaExercicios *fichas, int n_fichas);
+   // Registar e Consultar Estudantes
+   int registarEstudante(User *users, int *n_users);
+   int consultarEstudante(User *users, int n_users);
+   int registarFichaExercicios(FichaExercicios *fichas, int *n_fichas);
+   int consultarFichaExercicios(FichaExercicios *fichas, int n_fichas);
+   int registarExercicio(Exercicio *exercicios, int *n_exercicios);
+   int consultarExercicio(Exercicio *exercicios, int n_exercicios);
+   int registarSubmissao(Submissao *submissoes, int *n_submissoes);
+   int consultarSubmissao(Submissao *submissoes, int n_submissoes);
 
-// Funções para registar e consultar exercícios
-void registarExercicio(Exercicio *exercicios, int *n_exercicios);
-void consultarExercicio(Exercicio *exercicios, int n_exercicios);
+   // Estatísticas
+   int totalSubmissoesEstudante(Submissao *submissoes, int n_submissoes, int id_user);
+   float mediaClassificacoes(Submissao *submissoes, int n_submissoes);
+   float percentagemExerciciosResolvidos(Exercicio *exercicios, int n_exercicios, int id_ficha);
 
-// Funções para registar e consultar submissões
-void registarSubmissao(Submissao *submissoes, int *n_submissoes);
-void consultarSubmissao(Submissao *submissoes, int n_submissoes);
+   // Persistencia de dados
+   int carregarDados(User *users, int *n_users, FichaExercicios *fichas, int *n_fichas, Exercicio *exercicios, int *n_exercicios, Submissao *submissoes, int *n_submissoes);
+   int guardarDados(User *users, int n_users, FichaExercicios *fichas, int n_fichas, Exercicio *exercicios, int n_exercicios, Submissao *submissoes, int n_submissoes);
+
+   // Menu
+   int menuPrincipal(User *users, int *n_users, FichaExercicios *fichas, int *n_fichas, Exercicio *exercicios, int *n_exercicios, Submissao *submissoes, int *n_submissoes);
+
+
+   
+
 
 #pragma endregion
 
+
+// Função principal
 int main(int argc, char **argv)
 {
    return 0;
 }
 
+
+
 #pragma region Funções
 
+   /*
+   Codigos de status:
+   -1 -> Erro ( usado para informar que algo correu mal)
+   0 -> Sucesso ( usado para informar que algo correu como esperado)
+   1 -> Aviso ( usado para informar que algo não correu como esperado, mas não é um erro fatal) 
+   
+   */
    #pragma region Funções Genéricas
 
    // Função Generica para escrever ficheiro binário
@@ -418,17 +448,18 @@ int main(int argc, char **argv)
    // Passagem de dados genéricos (void *dados) -> pode ser de qualquer tipo (nesse caso, é um ponteiro para os dados que serão escritos)
    // Retorna void -> não retorna nada
    */
-   void escreverFicheiroBinario(char *nome_ficheiro, void *dados, int tamanho_dados)
+   int escreverFicheiroBinario(char *nome_ficheiro, void *dados, int tamanho_dados)
    {                                               // void *dados -> ponteiro genérico (pode ser de qualquer tipo)
       FILE *ficheiro = fopen(nome_ficheiro, "wb"); // wb -> write binary
       if (ficheiro == NULL)
       {
          printf("Erro ao abrir o ficheiro %s para escrita.\n", nome_ficheiro);
-         return;
+         return -1;
       }
 
       fwrite(dados, tamanho_dados, 1, ficheiro);
       fclose(ficheiro);
+      return 0;
    }
 
    // Função Generica para ler ficheiro binário
@@ -443,17 +474,18 @@ int main(int argc, char **argv)
    // Passagem de dados genéricos (void *dados) -> pode ser de qualquer tipo (nesse caso, é um ponteiro para os dados para onde serão lidos)
    // Retorna void -> não retorna nada
    */
-   void lerFicheiroBinario(char *nome_ficheiro, void *dados, int tamanho_dados)
+   int lerFicheiroBinario(char *nome_ficheiro, void *dados, int tamanho_dados)
    {
       FILE *ficheiro = fopen(nome_ficheiro, "rb");
       if (ficheiro == NULL)
       {
          printf("Erro ao abrir o ficheiro %s para leitura.\n", nome_ficheiro);
-         return;
+         return -1;
       }
 
       fread(dados, tamanho_dados, 1, ficheiro);
       fclose(ficheiro);
+      return 0;
    }
 
    // Função generica para receber uma string do utilizador (padrão para validar inputs)
@@ -544,32 +576,6 @@ int main(int argc, char **argv)
       return true;
    }
 
-   // Função generica para ordenar um array de tipo qualquer
-   /*
-   logica: (swap sort)
-
-   1. Percorrer o array
-   2. Percorrer o array novamente
-   3. Se o elemento atual for maior que o próximo, trocar os elementos de posição
-
-   */
-   // Função genérica para ordenar um array
-   void ordenarArray(void *array, int tamanho, int tamanho_elemento, int (*comparar)(const void *, const void *)) {
-      char *temp = (char *)malloc(tamanho_elemento); // Aloca memória temporária para troca de elementos
-      char *base = (char *)array; // Base do array como ponteiro de char para facilitar manipulação de bytes
-
-      for (int i = 0; i < tamanho - 1; i++) {
-         for (int j = i + 1; j < tamanho; j++) {
-            if (comparar(base + i * tamanho_elemento, base + j * tamanho_elemento) > 0) {
-                  // Troca os elementos
-                  memcpy(temp, base + i * tamanho_elemento, tamanho_elemento);
-                  memcpy(base + i * tamanho_elemento, base + j * tamanho_elemento, tamanho_elemento);
-                  memcpy(base + j * tamanho_elemento, temp, tamanho_elemento);
-            }
-         }
-      }
-      free(temp); // Libera a memória temporária
-   }
 
    #pragma endregion
    
@@ -592,152 +598,416 @@ int main(int argc, char **argv)
 
    #pragma region Registar e Consultar Estudantes
 
-   // Registar e consultar dados de estudantes.
-   void registarEstudante(User *users, int *n_users) // users -> array de utilizadores, n_users -> número de utilizadores
-   {
-      // Registar um novo estudante
-      User user;                                                     // Criar um novo utilizador
-      user.id = *n_users + 1;                                        // ID do utilizador
-      user.numero = receberInteiro("Número do estudante: ");         // Receber o número do utilizador
-      receberString("Nome do estudante: ", user.nome, MAX_NOME);     // Receber o nome do utilizador
-      receberString("E-mail do estudante: ", user.email, MAX_EMAIL); // Receber o email do utilizador
-      while (!validarEmail(user.email))
-      {                                                                    // Validar o email
-         printf("E-mail inválido. Por favor, insira um e-mail válido.\n"); // Mensagem de erro
-         receberString("E-mail do estudante: ", user.email, MAX_EMAIL);    // Receber o email do utilizador novamente
-      }
-      users[*n_users] = user; // Adicionar o utilizador ao array de utilizadores
-      (*n_users)++;           // Incrementar o número de utilizadores
-   }
-
-   void consultarEstudante(User *users, int n_users) // users -> array de utilizadores, n_users -> número de utilizadores
-   {
-      // Consultar dados de um estudante
-      int numero = receberInteiro("Número do estudante: "); // Receber o número do estudante
-      for (int i = 0; i < n_users; i++)
-      { // Percorrer o array de utilizadores
-         if (users[i].numero == numero)
-         {                                           // Se o número do utilizador for igual ao número recebido
-            printf("ID: %d\n", users[i].id);         // Mostrar o ID do utilizador
-            printf("Número: %d\n", users[i].numero); // Mostrar o número do utilizador
-            printf("Nome: %s\n", users[i].nome);     // Mostrar o nome do utilizador
-            printf("E-mail: %s\n", users[i].email);  // Mostrar o email do utilizador
-            return;                                  // Sair da função
+      // Registar e consultar dados de estudantes.
+      int registarEstudante(User *users, int *n_users) // users -> array de utilizadores, n_users -> número de utilizadores
+      {
+         // Registar um novo estudante
+         User user;                                                     // Criar um novo utilizador
+         user.id = *n_users + 1;                                        // ID do utilizador
+         user.numero = receberInteiro("Número do estudante: ");         // Receber o número do utilizador
+         receberString("Nome do estudante: ", user.nome, MAX_NOME);     // Receber o nome do utilizador
+         receberString("E-mail do estudante: ", user.email, MAX_EMAIL); // Receber o email do utilizador
+         while (!validarEmail(user.email))
+         {                                                                    // Validar o email
+            printf("E-mail inválido. Por favor, insira um e-mail válido.\n"); // Mensagem de erro
+            receberString("E-mail do estudante: ", user.email, MAX_EMAIL);    // Receber o email do utilizador novamente
          }
-      }
-      printf("Estudante não encontrado.\n"); // Mensagem de erro
-   }
+         users[*n_users] = user; // Adicionar o utilizador ao array de utilizadores
+         (*n_users)++;           // Incrementar o número de utilizadores
 
-   // Registar e consultar fichas de exercícios.
-   void registarFichaExercicios(FichaExercicios *fichas, int *n_fichas) // fichas -> array de fichas de exercícios, n_fichas -> número de fichas de exercícios
-   {
-      // Registar uma nova ficha de exercícios
-      FichaExercicios ficha;                                                    // Criar uma nova ficha de exercícios
-      ficha.id = *n_fichas + 1;                                                 // ID da ficha de exercícios (incrementar o número de fichas)
-      receberString("Nome da ficha de exercícios: ", ficha.nome, MAX_NOME);     // Receber o nome da ficha de exercícios
-      ficha.n_exercicios = receberInteiro("Número de exercícios: ");            // Receber o número de exercícios
-      receberString("Data de publicação (dd/mm/aaaa): ", ficha.data, MAX_DATA); // Receber a data de publicação
-      while (!validarData(ficha.data))
-      {                                                                            // Validar a data
-         printf("Data inválida. Por favor, insira uma data válida.\n");            // Mensagem de erro
-         receberString("Data de publicação (dd/mm/aaaa): ", ficha.data, MAX_DATA); // Receber a data de publicação novamente
+         return user.id; // Retorna o ID do utilizador
       }
-      fichas[*n_fichas] = ficha; // Adicionar a ficha de exercícios ao array de fichas de exercícios
-      (*n_fichas)++;             // Incrementar o número de fichas de exercícios
-   }
 
-   void consultarFichaExercicios(FichaExercicios *fichas, int n_fichas)
-   {
-      // Consultar dados de uma ficha de exercícios
-      int id = receberInteiro("ID da ficha de exercícios: "); // Receber o ID da ficha de exercícios
-      for (int i = 0; i < n_fichas; i++)
-      { // Percorrer o array de fichas de exercícios
-         if (fichas[i].id == id)
-         { // Se o ID da ficha de exercícios for igual ao ID recebido
-            printf("ID: %d\n", fichas[i].id);                 // Mostrar o ID da ficha de exercícios
-            printf("Nome: %s\n", fichas[i].nome);              // Mostrar o nome da ficha de exercícios
-            printf("Número de exercícios: %d\n", fichas[i].n_exercicios); // Mostrar o número de exercícios
-            printf("Data de publicação: %s\n", fichas[i].data); // Mostrar a data de publicação
-            return;                                              // Sair da função
+      int consultarEstudante(User *users, int n_users) // users -> array de utilizadores, n_users -> número de utilizadores
+      {
+         // Consultar dados de um estudante
+         int numero = receberInteiro("Número do estudante: "); // Receber o número do estudante
+         for (int i = 0; i < n_users; i++)
+         { // Percorrer o array de utilizadores
+            if (users[i].numero == numero)
+            {                                           // Se o número do utilizador for igual ao número recebido
+               printf("ID: %d\n", users[i].id);         // Mostrar o ID do utilizador
+               printf("Número: %d\n", users[i].numero); // Mostrar o número do utilizador
+               printf("Nome: %s\n", users[i].nome);     // Mostrar o nome do utilizador
+               printf("E-mail: %s\n", users[i].email);  // Mostrar o email do utilizador
+               return users[i].id;                      // Retorna o ID do utilizador
+            }
          }
+         printf("Estudante não encontrado.\n"); // Mensagem de erro
+         return -1;                             // Retorna -1 se o estudante não for encontrado
       }
-      printf("Ficha de exercícios não encontrada.\n"); // Mensagem de erro
-   }
 
-   // Registar e consultar exercícios.
-   void registarExercicio(Exercicio *exercicios, int *n_exercicios)
-   {
-      // Registar um novo exercício
-      Exercicio exercicio; // Criar um novo exercício
-      exercicio.id = *n_exercicios + 1; // ID do exercício (incrementar o número de exercícios)
-      exercicio.id_ficha = receberInteiro("ID da ficha de exercícios: "); // Receber o ID da ficha de exercícios
-      receberString("Nome do exercício: ", exercicio.nome, MAX_NOME);    // Receber o nome do exercício
-      exercicio.grau_dificuldade = receberInteiro("Grau de dificuldade: "); // Receber o grau de dificuldade
-      receberString("Tipo de solução: ", exercicio.tipo_solucao, 10);      // Receber o tipo de solução
-      exercicios[*n_exercicios] = exercicio; // Adicionar o exercício ao array de exercícios
-      (*n_exercicios)++;                      // Incrementar o número de exercícios
-   }
-
-   void consultarExercicio(Exercicio *exercicios, int n_exercicios)
-   {
-      // Consultar dados de um exercício
-      int id = receberInteiro("ID do exercício: "); // Receber o ID do exercício
-      for (int i = 0; i < n_exercicios; i++)
-      { // Percorrer o array de exercícios
-         if (exercicios[i].id == id)
-         { // Se o ID do exercício for igual ao ID recebido
-            printf("ID: %d\n", exercicios[i].id);                 // Mostrar o ID do exercício
-            printf("ID da ficha de exercícios: %d\n", exercicios[i].id_ficha); // Mostrar o ID da ficha de exercícios
-            printf("Nome: %s\n", exercicios[i].nome);              // Mostrar o nome do exercício
-            printf("Grau de dificuldade: %d\n", exercicios[i].grau_dificuldade); // Mostrar o grau de dificuldade
-            printf("Tipo de solução: %s\n", exercicios[i].tipo_solucao); // Mostrar o tipo de solução
-            return;                                              // Sair da função
+      // Registar e consultar fichas de exercícios.
+      int registarFichaExercicios(FichaExercicios *fichas, int *n_fichas) // fichas -> array de fichas de exercícios, n_fichas -> número de fichas de exercícios
+      {
+         // Registar uma nova ficha de exercícios
+         FichaExercicios ficha;                                                    // Criar uma nova ficha de exercícios
+         ficha.id = *n_fichas + 1;                                                 // ID da ficha de exercícios (incrementar o número de fichas)
+         receberString("Nome da ficha de exercícios: ", ficha.nome, MAX_NOME);     // Receber o nome da ficha de exercícios
+         ficha.n_exercicios = receberInteiro("Número de exercícios: ");            // Receber o número de exercícios
+         receberString("Data de publicação (dd/mm/aaaa): ", ficha.data, MAX_DATA); // Receber a data de publicação
+         while (!validarData(ficha.data))
+         {                                                                            // Validar a data
+            printf("Data inválida. Por favor, insira uma data válida.\n");            // Mensagem de erro
+            receberString("Data de publicação (dd/mm/aaaa): ", ficha.data, MAX_DATA); // Receber a data de publicação novamente
          }
-      }
-      printf("Exercício não encontrado.\n"); // Mensagem de erro
-   }
+         fichas[*n_fichas] = ficha; // Adicionar a ficha de exercícios ao array de fichas de exercícios
+         (*n_fichas)++;             // Incrementar o número de fichas de exercícios
 
-   // Registar e consultar submissões.
-   void registarSubmissao(Submissao *submissoes, int *n_submissoes)
-   {
-      // Registar uma nova submissão
-      Submissao submissao; // Criar uma nova submissão
-      submissao.id = *n_submissoes + 1; // ID da submissão (incrementar o número de submissões)
-      submissao.id_user = receberInteiro("ID do estudante: "); // Receber o ID do estudante
-      submissao.id_ficha = receberInteiro("ID da ficha de exercícios: "); // Receber o ID da ficha de exercícios
-      submissao.id_exercicio = receberInteiro("ID do exercício: "); // Receber o ID do exercício
-      receberString("Data da submissão (dd/mm/aaaa): ", submissao.data, MAX_DATA); // Receber a data da submissão
-      while (!validarData(submissao.data))
-      { // Validar a data
-         printf("Data inválida. Por favor, insira uma data válida.\n"); // Mensagem de erro
-         receberString("Data da submissão (dd/mm/aaaa): ", submissao.data, MAX_DATA); // Receber a data da submissão novamente
+         return ficha.id; // Retorna o ID da ficha de exercícios
       }
-      submissao.n_linhas = receberInteiro("Número de linhas: "); // Receber o número de linhas
-      submissao.classificacao = receberInteiro("Classificação: "); // Receber a classificação
-      submissoes[*n_submissoes] = submissao; // Adicionar a submissão ao array de submissões
-      (*n_submissoes)++; // Incrementar o número de submissões
-   }
 
-   void consultarSubmissao(Submissao *submissoes, int n_submissoes)
-   {
-      // Consultar dados de uma submissão
-      int id = receberInteiro("ID da submissão: "); // Receber o ID da submissão
-      for (int i = 0; i < n_submissoes; i++)
-      { // Percorrer o array de submissões
-         if (submissoes[i].id == id)
-         { // Se o ID da submissão for igual ao ID recebido
-            printf("ID: %d\n", submissoes[i].id); // Mostrar o ID da submissão
-            printf("ID do estudante: %d\n", submissoes[i].id_user); // Mostrar o ID do estudante
-            printf("ID da ficha de exercícios: %d\n", submissoes[i].id_ficha); // Mostrar o ID da ficha de exercícios
-            printf("ID do exercício: %d\n", submissoes[i].id_exercicio); // Mostrar o ID do exercício
-            printf("Data da submissão: %s\n", submissoes[i].data); // Mostrar a data da submissão
-            printf("Número de linhas: %d\n", submissoes[i].n_linhas); // Mostrar o número de linhas
-            printf("Classificação: %d\n", submissoes[i].classificacao); // Mostrar a classificação
-            return; // Sair da função
+      int consultarFichaExercicios(FichaExercicios *fichas, int n_fichas)
+      {
+         // Consultar dados de uma ficha de exercícios
+         int id = receberInteiro("ID da ficha de exercícios: "); // Receber o ID da ficha de exercícios
+         for (int i = 0; i < n_fichas; i++)
+         { // Percorrer o array de fichas de exercícios
+            if (fichas[i].id == id)
+            { // Se o ID da ficha de exercícios for igual ao ID recebido
+               printf("ID: %d\n", fichas[i].id);                 // Mostrar o ID da ficha de exercícios
+               printf("Nome: %s\n", fichas[i].nome);              // Mostrar o nome da ficha de exercícios
+               printf("Número de exercícios: %d\n", fichas[i].n_exercicios); // Mostrar o número de exercícios
+               printf("Data de publicação: %s\n", fichas[i].data); // Mostrar a data de publicação
+               return fichas[i].id;                                // Retorna o ID da ficha de exercícios
+            }
          }
+         printf("Ficha de exercícios não encontrada.\n"); // Mensagem de erro
+         return -1;                                       // Retorna -1 se a ficha de exercícios não for encontrada
       }
-      printf("Submissão não encontrada.\n"); // Mensagem de erro
-   }
+
+      // Registar e consultar exercícios.
+      int registarExercicio(Exercicio *exercicios, int *n_exercicios)
+      {
+         // Registar um novo exercício
+         Exercicio exercicio; // Criar um novo exercício
+         exercicio.id = *n_exercicios + 1; // ID do exercício (incrementar o número de exercícios)
+         exercicio.id_ficha = receberInteiro("ID da ficha de exercícios: "); // Receber o ID da ficha de exercícios
+         receberString("Nome do exercício: ", exercicio.nome, MAX_NOME);    // Receber o nome do exercício
+         exercicio.grau_dificuldade = receberInteiro("Grau de dificuldade: "); // Receber o grau de dificuldade
+         receberString("Tipo de solução: ", exercicio.tipo_solucao, 10);      // Receber o tipo de solução
+         exercicios[*n_exercicios] = exercicio; // Adicionar o exercício ao array de exercícios
+         (*n_exercicios)++;                      // Incrementar o número de exercícios
+
+         return exercicio.id; // Retorna o ID do exercício
+      }
+
+      int consultarExercicio(Exercicio *exercicios, int n_exercicios)
+      {
+         // Consultar dados de um exercício
+         int id = receberInteiro("ID do exercício: "); // Receber o ID do exercício
+         for (int i = 0; i < n_exercicios; i++)
+         { // Percorrer o array de exercícios
+            if (exercicios[i].id == id)
+            { // Se o ID do exercício for igual ao ID recebido
+               printf("ID: %d\n", exercicios[i].id);                 // Mostrar o ID do exercício
+               printf("ID da ficha de exercícios: %d\n", exercicios[i].id_ficha); // Mostrar o ID da ficha de exercícios
+               printf("Nome: %s\n", exercicios[i].nome);              // Mostrar o nome do exercício
+               printf("Grau de dificuldade: %d\n", exercicios[i].grau_dificuldade); // Mostrar o grau de dificuldade
+               printf("Tipo de solução: %s\n", exercicios[i].tipo_solucao); // Mostrar o tipo de solução
+               return exercicios[i].id;                                // Retorna o ID do exercício
+            }
+         }
+         printf("Exercício não encontrado.\n"); // Mensagem de erro
+         return -1;                              // Retorna -1 se o exercício não for encontrado
+      }
+
+      // Registar e consultar submissões.
+      int registarSubmissao(Submissao *submissoes, int *n_submissoes)
+      {
+         // Registar uma nova submissão
+         Submissao submissao; // Criar uma nova submissão
+         submissao.id = *n_submissoes + 1; // ID da submissão (incrementar o número de submissões)
+         submissao.id_user = receberInteiro("ID do estudante: "); // Receber o ID do estudante
+         submissao.id_ficha = receberInteiro("ID da ficha de exercícios: "); // Receber o ID da ficha de exercícios
+         submissao.id_exercicio = receberInteiro("ID do exercício: "); // Receber o ID do exercício
+         receberString("Data da submissão (dd/mm/aaaa): ", submissao.data, MAX_DATA); // Receber a data da submissão
+         while (!validarData(submissao.data))
+         { // Validar a data
+            printf("Data inválida. Por favor, insira uma data válida.\n"); // Mensagem de erro
+            receberString("Data da submissão (dd/mm/aaaa): ", submissao.data, MAX_DATA); // Receber a data da submissão novamente
+         }
+         submissao.n_linhas = receberInteiro("Número de linhas: "); // Receber o número de linhas
+         submissao.classificacao = receberInteiro("Classificação: "); // Receber a classificação
+         submissoes[*n_submissoes] = submissao; // Adicionar a submissão ao array de submissões
+         (*n_submissoes)++; // Incrementar o número de submissões
+         return submissao.id; // Retorna o ID da submissão
+      }
+
+      int consultarSubmissao(Submissao *submissoes, int n_submissoes)
+      {
+         // Consultar dados de uma submissão
+         int id = receberInteiro("ID da submissão: "); // Receber o ID da submissão
+         for (int i = 0; i < n_submissoes; i++)
+         { // Percorrer o array de submissões
+            if (submissoes[i].id == id)
+            { // Se o ID da submissão for igual ao ID recebido
+               printf("ID: %d\n", submissoes[i].id); // Mostrar o ID da submissão
+               printf("ID do estudante: %d\n", submissoes[i].id_user); // Mostrar o ID do estudante
+               printf("ID da ficha de exercícios: %d\n", submissoes[i].id_ficha); // Mostrar o ID da ficha de exercícios
+               printf("ID do exercício: %d\n", submissoes[i].id_exercicio); // Mostrar o ID do exercício
+               printf("Data da submissão: %s\n", submissoes[i].data); // Mostrar a data da submissão
+               printf("Número de linhas: %d\n", submissoes[i].n_linhas); // Mostrar o número de linhas
+               printf("Classificação: %d\n", submissoes[i].classificacao); // Mostrar a classificação
+               return submissoes[i].id; // Retorna o ID da submissão
+            }
+         }
+         printf("Submissão não encontrada.\n"); // Mensagem de erro
+         return -1; // Retorna -1 se a submissão não for encontrada
+      }
+
+   #pragma endregion
+
+   #pragma region Estatísticas
+
+      // Estatísticas por estudante
+      // Total de submissões realizadas por estudante.
+      int totalSubmissoesEstudante(Submissao *submissoes, int n_submissoes, int id_user)
+      {
+         int total = 0; // Inicializar o total de submissões
+         for (int i = 0; i < n_submissoes; i++)
+         { // Percorrer o array de submissões
+            if (submissoes[i].id_user == id_user)
+            { // Se o ID do estudante for igual ao ID recebido
+               total++; // Incrementar o total de submissões
+            }
+         }
+         return total; // Retorna o total de submissões
+      }
+
+      // Média das classificações das submissões realizadas.
+      float mediaClassificacoes(Submissao *submissoes, int n_submissoes)
+      {
+         int total = 0; // Inicializar o total das classificações
+         for (int i = 0; i < n_submissoes; i++)
+         { // Percorrer o array de submissões
+            total += submissoes[i].classificacao; // Somar a classificação ao total
+         }
+         return (float)total / n_submissoes; // Calcular a média das classificações
+      }
+
+      // Percentagem de exercícios resolvidos em cada ficha.
+      float percentagemExerciciosResolvidos(Exercicio *exercicios, int n_exercicios, int id_ficha)
+      {
+         int total = 0; // Inicializar o total de exercícios
+         for (int i = 0; i < n_exercicios; i++)
+         { // Percorrer o array de exercícios
+            if (exercicios[i].id_ficha == id_ficha)
+            { // Se o ID da ficha de exercícios for igual ao ID recebido
+               total++; // Incrementar o total de exercícios
+            }
+         }
+         return (float)total / n_exercicios * 100; // Calcular a percentagem de exercícios resolvidos
+      }
+
+   #pragma endregion
+
+   #pragma region Persistencia de dados
+
+      int validarStatus(userStatus, fichaStatus, exercicioStatus, submissaoStatus)
+      {
+         if (userStatus == -1 || fichaStatus == -1 || exercicioStatus == -1 || submissaoStatus == -1)
+         { // Se ocorrer um erro ao carregar os dados
+            printf("Erro ao carregar os dados.\n"); // Mensagem de erro
+            return -1; // Retorna -1
+         }
+         return 0; // Retorna 0
+      }
+
+      // Carregar dados a partir de ficheiros binários ao iniciar a aplicação.
+      int carregarDados(User *users, int *n_users, FichaExercicios *fichas, int *n_fichas, Exercicio *exercicios, int *n_exercicios, Submissao *submissoes, int *n_submissoes)
+      {
+         int userStatus, fichaStatus, exercicioStatus, submissaoStatus; // Variáveis para verificar o status da leitura dos dados
+         userStatus = lerFicheiroBinario("users.dat", users, sizeof(User) * MAX_USERS); // Carregar os utilizadores
+         fichaStatus = lerFicheiroBinario("fichas.dat", fichas, sizeof(FichaExercicios) * MAX_FICHAS); // Carregar as fichas de exercícios
+         exercicioStatus = lerFicheiroBinario("exercicios.dat", exercicios, sizeof(Exercicio) * MAX_EXERCICIOS); // Carregar os exercícios
+         submissaoStatus = lerFicheiroBinario("submissoes.dat", submissoes, sizeof(Submissao) * MAX_SUBMISSOES); // Carregar as submissões
+         *n_users = MAX_USERS; // Atualizar o número de utilizadores
+         *n_fichas = MAX_FICHAS; // Atualizar o número de fichas de exercícios
+         *n_exercicios = MAX_EXERCICIOS; // Atualizar o número de exercícios
+         *n_submissoes = MAX_SUBMISSOES; // Atualizar o número de submissões
+
+         return validarStatus(userStatus, fichaStatus, exercicioStatus, submissaoStatus);
+      }
+
+      // Armazenar dados em ficheiros binários ao encerrar ou quando solicitado.
+      int guardarDados(User *users, int n_users, FichaExercicios *fichas, int n_fichas, Exercicio *exercicios, int n_exercicios, Submissao *submissoes, int n_submissoes)
+      {
+         int userStatus, fichaStatus, exercicioStatus, submissaoStatus; // Variáveis para verificar o status da escrita dos dados
+         userStatus = escreverFicheiroBinario("users.dat", users, sizeof(User) * n_users); // Guardar os utilizadores
+         fichaStatus = escreverFicheiroBinario("fichas.dat", fichas, sizeof(FichaExercicios) * n_fichas); // Guardar as fichas de exercícios
+         exercicioStatus = escreverFicheiroBinario("exercicios.dat", exercicios, sizeof(Exercicio) * n_exercicios); // Guardar
+         submissaoStatus = escreverFicheiroBinario("submissoes.dat", submissoes, sizeof(Submissao) * n_submissoes); // Guardar
+
+         return validarStatus(userStatus, fichaStatus, exercicioStatus, submissaoStatus);
+      }
+
+      // Verificar se os dados foram carregados corretamente
+      int verificarDadosCarregados(User *users, int n_users, FichaExercicios *fichas, int n_fichas, Exercicio *exercicios, int n_exercicios, Submissao *submissoes, int n_submissoes)
+      {
+         printf("Utilizadores carregados: %d\n", n_users);
+         printf("Fichas de exercícios carregadas: %d\n", n_fichas);
+         printf("Exercícios carregados: %d\n", n_exercicios);
+         printf("Submissões carregadas: %d\n", n_submissoes);
+      }
+
+   #pragma endregion
+
+   #pragma region Validacoes dos Dados
+   
+      // Verificar se um email já existe
+      bool emailExiste(User *users, int n_users, char *email)
+      {
+         for (int i = 0; i < n_users; i++) // Percorrer o array de utilizadores
+         {
+            if (strcmp(users[i].email, email) == 0)
+            { // Se o email do utilizador for igual ao email recebido
+               return true; // O email já existe
+            }
+         }
+         return false; // O email não existe
+      }
+
+      // Verificar se um número de estudante já existe
+      bool numeroEstudanteExiste(User *users, int n_users, int numero)
+      {
+         for (int i = 0; i < n_users; i++) // Percorrer o array de utilizadores
+         {
+            if (users[i].numero == numero)
+            { // Se o número do utilizador for igual ao número recebido
+               return true; // O número de estudante já existe
+            }
+         }
+         return false; // O número de estudante não existe
+      }
+
+      // Verificar se um ID de ficha de exercícios já existe
+      bool idFichaExerciciosExiste(FichaExercicios *fichas, int n_fichas, int id)
+      {
+         for (int i = 0; i < n_fichas; i++) // Percorrer o array de fichas de exercícios
+         {
+            if (fichas[i].id == id)
+            { // Se o ID da ficha de exercícios for igual ao ID recebido
+               return true; // O ID da ficha de exercícios já existe
+            }
+         }
+         return false; // O ID da ficha de exercícios não existe
+      }
+
+      // Verificar se um ID de exercício já existe
+      bool idExercicioExiste(Exercicio *exercicios, int n_exercicios, int id)
+      {
+         for (int i = 0; i < n_exercicios; i++) // Percorrer o array de exercícios
+         {
+            if (exercicios[i].id == id)
+            { // Se o ID do exercício for igual ao ID recebido
+               return true; // O ID do exercício já existe
+            }
+         }
+         return false; // O ID do exercício não existe
+      }
+
+      // Verificar se um ID de submissão já existe
+      bool idSubmissaoExiste(Submissao *submissoes, int n_submissoes, int id)
+      {
+         for (int i = 0; i < n_submissoes; i++) // Percorrer o array de submissões
+         {
+            if (submissoes[i].id == id)
+            { // Se o ID da submissão for igual ao ID recebido
+               return true; // O ID da submissão já existe
+            }
+         }
+         return false; // O ID da submissão não existe
+      }
+   #pragma endregion
+
+   #pragma Interface e menus
+
+      // LIMITE DE 25 linhas por função
+      // Todos os menus e funções de interface recebem os ponteiros para os arrays e dados necessários
+
+      int logo()
+      {
+         printf("\n");
+         printf(" █████████████████████████████████    ████████   ██████   ███     ███ ████████ ███████   ██████  ████  ███  ███   ██████   ███████\n");
+         printf(" █████████████████████████████████    ████████  ███  ███  ███     ███ ████████ ███████  ███  ███ █████ ███  ███  ███  ███ ████ ████\n");
+         printf(" █████████████████████████████████    ███  ███  ███  ███  ███     ███   ███    ███      ███  ███ █████ ███  ███  ███  ███ ███   ███\n");
+         printf(" ██████████████      █████████████    ███  ███  ███  ███  ███     ███   ███    ███████  ███      █████████  ███  ███      ███   ███\n");
+         printf(" ██████████             ██████████    ████████  ███  ███  ███     ███   ███    ███████  ███      ███ █████  ███  ███      ███   ███\n");
+         printf(" ████████     ████████    ████████    ███       ███  ███  ███     ███   ███    ███      ███  ███ ███ █████  ███  ███  ███ ███   ███\n");
+         printf(" ███████    ████████████   ███████    ███       ███  ███  ███     ███   ███    ███      ███  ███ ███  ████  ███  ███  ███ ███   ███\n");
+         printf(" ██████    ██████████████   ██████    ███       ████████  ███████ ███   ███    ████████ ████████ ███  ████  ███  ████████  ███████\n");
+         printf(" ██████   ██   ██████████   ██████                 ██                                      ██                       ██       ███\n");
+         printf(" ██████   ██   ██████████   ██████                                                                                    \n");          
+         printf(" ██████    ██████████████   ██████                     ███     ███████  ███  ████████  ███   ████                    \n");
+         printf(" ███████    ████████████   ███████                     ███     ███      ███  ███  ███  ███   ████                    \n");
+         printf(" ████████     ████████    ████████                     ███     ███      ███  ███  ███  ███   █████                   \n");
+         printf(" ██████████             ██████████    ██████ ████      ███     ███████  ███  ████████  ███  ██████                   \n");
+         printf(" █████████████       █████████████    ██  ██ ██        ███     ███      ███  ███  ███  ███  ███ ███                  \n");
+         printf(" █████████████████████████████████    ██  ██ ████      ███     ███      ███  ███  ███  ███ ████████                  \n");
+         printf(" █████████████████████████████████    ██  ██ ██        ███     ███      ███  ███  ███  ███ ████████                  \n");
+         printf(" █████████████████████████████████    █████  █████     ███████ ████████ ███  ███  ███  ███ ███   ███                  \n");
+         printf("\n");
+      }
+
+      // menuPrincipalOpcoes (switch case para cada opção)
+      int menuPrincipalSwitch(int opcao, User *user, FichaExercicios *fichas, Exercicio *exercicios, Submissao *submissoes)
+      {
+         switch (opcao)
+         {
+            case 1:
+               // Consultar Dados
+               // Menu de opções para consultar dados
+               break;
+            case 2:
+               // Registar Dados
+               // Menu de opções para registar dados
+               break;
+            case 3:
+               // Estatísticas
+               // Menu de opções para estatísticas
+               break;
+            case 4:
+               // Guardar Dados
+               // Guardar os dados em ficheiros binários
+               break;
+            case 5:
+               // Sair
+               // Terminar o programa
+               break;
+            default:
+               // Opção inválida
+               printf("Opção inválida.\n");
+               break;
+         }
+         
+         return 0;
+      }
+
+      // Menu principal (mostrar as opções disponíveis e receber a opção do utilizador)
+      int menuPrincipal(User *user, FichaExercicios *fichas, Exercicio *exercicios, Submissao *submissoes)
+      {
+         int opcao; // Variável para armazenar a opção escolhida pelo utilizador
+         printf("\n### Menu Principal ###\n");
+         printf("1. Consultar Dados\n");
+         printf("2. Registar Dados\n");
+         printf("3. Estatísticas\n");
+         printf("4. Guardar Dados\n");
+         printf("5. Sair\n");
+         opcao = receberInteiro("Escolha uma opção: "); // Receber a opção do utilizador
+         return menuPrincipal(opcao, user, fichas, exercicios, submissoes); // Chamar a função correspondente à opção escolhida
+      }
+
+      // Menu de opções para consultar dados
+
+
+
+
+      
+
+
+
+
 
    #pragma endregion
 
