@@ -403,6 +403,11 @@ int receberInteiro(char *mensagem);
 float receberFloat(char *mensagem);
 bool validarEmail(char *email);
 bool validarData(char *data);
+int tamanhoArrayUsers(User *users);
+int tamanhoArraySubmissoes(Submissao *submissoes);
+int tamanhoArrayFichas(FichaExercicios *fichas);
+int tamanhoArrayExercicios(Exercicio *exercicios);
+
 
 // Registrar e consultar dados ----------------------
 int registarEstudante(User *users, int *n_users);
@@ -411,7 +416,7 @@ int registarFichaExercicios(FichaExercicios *fichas, int *n_fichas);
 int consultarFichaExercicios(FichaExercicios *fichas, int n_fichas);
 int registarExercicio(Exercicio *exercicios, int *n_exercicios);
 int consultarExercicio(Exercicio *exercicios, int n_exercicios);
-int registarSubmissao(Submissao *submissoes, int *n_submissoes);
+int registarSubmissao(Submissao *submissoes, int *n_submissoes, DadosMenu *dadosMenu);
 int consultarSubmissao(Submissao *submissoes, int n_submissoes);
 
 
@@ -437,6 +442,8 @@ int guardarDados(User *users, int n_users, FichaExercicios *fichas, int n_fichas
 int carregarDados(User *users, int *n_users, FichaExercicios *fichas, int *n_fichas, Exercicio *exercicios, int *n_exercicios, Submissao *submissoes, int *n_submissoes);
 int validarDados(User *users, int n_users, FichaExercicios *fichas, int n_fichas, Exercicio *exercicios, int n_exercicios, Submissao *submissoes, int n_submissoes);
 int ficheirosExistentes(int n_users, int n_fichas, int n_exercicios, int n_submissoes);
+int criarFicheiros(int n_users, int n_fichas, int n_exercicios, int n_submissoes);
+
 
 
 // Interface e menus ----------------------
@@ -473,6 +480,7 @@ int menuEstatisticasSwitch(int opcao, DadosMenu *dadosMenu);
       // Verificar se os ficheiros existem
       if (ficheirosExistentes(n_users, n_fichas, n_exercicios, n_submissoes) == -1)
       { // Verificar se os ficheiros existem
+         printf("Não foi possível verificar a existência dos ficheiros, o sistema irá criar novos ficheiros e reiniciar.\n");
          return -1; // Terminar o programa
       }
 
@@ -509,7 +517,7 @@ int menuEstatisticasSwitch(int opcao, DadosMenu *dadosMenu);
 #pragma region Funções
 /*
 Codigos de status:
--1 -> Erro ( usado para informar que algo correu mal)
+-1 -> Erro ( usado para informar que algo correu mal, se o menu retornar isto irá terminar o programa)
 0 -> Sucesso ( usado para informar que algo correu como esperado)
 1 -> Aviso ( usado para informar que algo não correu como esperado, mas não é um erro fatal)
 
@@ -613,15 +621,6 @@ Codigos de status:
          return 0;
       }
 
-      // Função generica para receber um inteiro do utilizador (padrão para validar inputs)
-      // int receberInteiro(char *mensagem)
-      // {
-      //    int numero;
-      //    printf("%s", mensagem);
-      //    scanf("%d", &numero);
-      //    return numero;
-      // }
-
       int receberInteiro(char *mensagem) {
          int valor;
          printf("%s", mensagem);
@@ -652,26 +651,6 @@ Codigos de status:
       3. Se houver 1 arroba e pelo menos 1 ponto, o email é válido (retornar true)
 
       */
-      // bool validarEmail(char *email)
-      // {
-      //    int i, arrobas = 0, pontos = 0;
-      //    for (i = 0; email[i] != '\0'; i++)
-      //    {
-      //       if (email[i] == '@')
-      //       {
-      //          arrobas++;
-      //       }
-      //       if (email[i] == '.')
-      //       {
-      //          pontos++;
-      //       }
-      //    }
-      //    if (arrobas == 1 && pontos >= 1)
-      //    {
-      //       return true;
-      //    }
-      //    return false;
-      // }
 
       bool validarEmail(char *email) {
          // Simples validação para o formato de email
@@ -692,19 +671,19 @@ Codigos de status:
 
       bool validarData(char *data)
       {
-         if (strlen(data) != 10)
+         if (strlen(data) != 10)                         // Verificar se a data tem 10 caracteres
          {
-            return false;
+            return false;                                // Retornar falso
          }
-         if (data[2] != '/' || data[5] != '/')
+         if (data[2] != '/' || data[5] != '/')           // Verificar se os caracteres nas posições 2, 5 e 7 são barras (/)
          {
-            return false;
+            return false;                                // Retornar falso 
          }
-         for (int i = 0; i < 10; i++)
+         for (int i = 0; i < 10; i++)                    // Verificar se os restantes caracteres são dígitos (0-9)
          {
-            if (i != 2 && i != 5 && !isdigit(data[i]))
+            if (i != 2 && i != 5 && !isdigit(data[i]))   // Se o índice não for 2 nem 5 e o caractere não for um dígito
             {
-               return false;
+               return false;                             // Retornar falso
             }
          }
          return true;
@@ -745,38 +724,162 @@ Codigos de status:
 
 
    #pragma endregion
-
-   /*
-      - Registar e consultar dados de estudantes.
-      - Registar e consultar fichas de exercícios.
-      - Registar e consultar exercícios.
-      - Registar e consultar submissões.
-   */
-
-   /*
-   1. **Gerenciamento de Estudantes:**
-      - **Registrar estudante:**
-      - Criar função para adicionar um novo estudante.
-      - Validar dados (e.g., email único).
-      - **Consultar estudante:**
-      - Buscar pelo número do estudante.
-   */
-
    #pragma region Registar Consultar
 
-      /*
+         // Validar dados que são inseridos	
 
-         // Registrar e consultar dados ----------------------
-         int registarEstudante(User *users, int *n_users);
-         int consultarEstudante(User *users, int n_users);
-         int registarFichaExercicios(FichaExercicios *fichas, int *n_fichas);
-         int consultarFichaExercicios(FichaExercicios *fichas, int n_fichas);
-         int registarExercicio(Exercicio *exercicios, int *n_exercicios);
-         int consultarExercicio(Exercicio *exercicios, int n_exercicios);
-         int registarSubmissao(Submissao *submissoes, int *n_submissoes);
-         int consultarSubmissao(Submissao *submissoes, int n_submissoes);
+         /*
 
-      */
+         // Estrutura User
+         typedef struct
+         {
+            int id;
+            int numero;
+            char nome[MAX_NOME];
+            char email[MAX_EMAIL];
+         } User; 
+
+         // Estrutura Submissão
+         typedef struct
+         {
+            int id;
+            int id_user; <- Relacionado com User (logo é necessário validar se o ID do User existe)
+            int id_ficha; <- Relacionado com Ficha de Exercícios (logo é necessário validar se o ID da Ficha de Exercícios existe)
+            int id_exercicio; <- Relacionado com Exercício (logo é necessário validar se o ID do Exercício existe)
+            char data[11];
+            int n_linhas;
+            int classificacao;
+         } Submissao; (relacionado com user, ficha de exercícios e exercício)
+
+         // Estrutura Ficha de Exercícios
+         typedef struct
+         {
+            int id;
+            char nome[MAX_NOME];
+            int n_exercicios;
+            char data[11];
+         } FichaExercicios;
+
+         // Estrutura Exercício
+         typedef struct
+         {
+            int id;
+            int id_ficha; <- Relacionado com Ficha de Exercícios (logo é necessário validar se o ID da Ficha de Exercícios existe)
+            char nome[MAX_NOME];
+            int grau_dificuldade;
+            char tipo_solucao[10];
+         } Exercicio; (relacionado com exercício)
+
+         */
+
+         // Função para validar se os dados são válidos
+         /*
+         LOGICA:
+
+         1. Percorrer o array de utilizadores
+         2. Verificar se o ID do utilizador é igual ao ID recebido
+         3. Se o ID do utilizador for igual ao ID recebido, retornar 0 (sucesso)
+         4. Se o ID do utilizador não existir, retornar 1 (aviso)
+
+         */
+
+         int userExiste(User *users, int n_users, int id)
+         {
+            for (int i = 0; i < n_users; i++)
+            { // Percorrer o array de utilizadores
+               if (users[i].id == id)
+               { // Se o ID do utilizador for igual ao ID recebido
+                  return 0; // Retornar 0 (sucesso)
+               }
+            }
+            return 1; // Retornar 1 (aviso)
+         }
+
+         // Função para validar se os dados são válidos
+         /*
+         LOGICA:
+
+         1. Percorrer o array de fichas de exercícios
+         2. Verificar se o ID da ficha de exercícios é igual ao ID recebido
+         3. Se o ID da ficha de exercícios for igual ao ID recebido, retornar 0 (sucesso)
+         4. Se o ID da ficha de exercícios não existir, retornar 1 (aviso)
+
+         */
+
+         int fichaExiste(FichaExercicios *fichas, int n_fichas, int id)
+         {
+            for (int i = 0; i < n_fichas; i++)
+            { // Percorrer o array de fichas de exercícios
+               if (fichas[i].id == id)
+               { // Se o ID da ficha de exercícios for igual ao ID recebido
+                  return 0; // Retornar 0 (sucesso)
+               }
+            }
+            return 1; // Retornar 1 (aviso)
+         }
+
+         // Função para validar se os dados são válidos
+         /*
+         LOGICA:
+
+         1. Percorrer o array de exercícios
+         2. Verificar se o ID do exercício é igual ao ID recebido
+         3. Se o ID do exercício for igual ao ID recebido, retornar 0 (sucesso)
+         4. Se o ID do exercício não existir, retornar 1 (aviso)
+
+         */
+
+         int exercicioExiste(Exercicio *exercicios, int n_exercicios, int id)
+         {
+            for (int i = 0; i < n_exercicios; i++)
+            { // Percorrer o array de exercícios
+               if (exercicios[i].id == id)
+               { // Se o ID do exercício for igual ao ID recebido
+                  return 0; // Retornar 0 (sucesso)
+               }
+            }
+            return 1; // Retornar 1 (aviso)
+         }
+
+         // Função para validar se os dados da submissão são válidos
+         /*
+         1. Verificar se o ID do utilizador, ficha de exercícios e exercício existem
+         2. Se os IDs existirem, retornar 0 (sucesso)
+         3. Se algum dos IDs não existir, retornar 1 (aviso)
+         */
+         int validarSubmissao(User *users, int n_users, FichaExercicios *fichas, int n_fichas, Exercicio *exercicios, int n_exercicios, Submissao *submissoes, int n_submissoes)
+         {
+            if (userExiste(users, n_users, submissoes[n_submissoes].id_user) == 0 && fichaExiste(fichas, n_fichas, submissoes[n_submissoes].id_ficha) == 0 && exercicioExiste(exercicios, n_exercicios, submissoes[n_submissoes].id_exercicio) == 0)
+            { // Se o utilizador, ficha de exercícios e exercício existirem
+               printf("Submissão válida.\n");
+               return 0; // Retornar 0 (sucesso)
+            }
+            return 1; // Retornar 1 (aviso)
+         }
+         
+
+         // Função para validar se os dados do exercício são válidos (relacionados com a ficha de exercícios ou seja deve existir uma ficha de exercícios com o ID recebido)
+         int validarExercicio(Exercicio *exercicios, int n_exercicios, int id_ficha)
+         {
+            for (int i = 0; i < n_exercicios; i++)
+            { // Percorrer o array de exercícios
+               if (exercicios[i].id_ficha == id_ficha)
+               { // Se o ID da ficha de exercícios for igual ao ID recebido
+                  return 0; // Retornar 0 (sucesso)
+               }
+            }
+            return 1; // Retornar 1 (aviso)
+         }
+
+
+
+
+
+
+
+
+
+
 
       // Registar um novo estudante
       /*
@@ -793,23 +896,6 @@ Codigos de status:
 
       */
       
-      // int registarEstudante(User *users, int *n_users)
-      // {
-      //    User user; // Variável para armazenar os dados do novo estudante
-      //    user.id = *n_users + 1; // ID do novo estudante
-      //    user.numero = receberInteiro("Número do estudante: "); // Receber o número do estudante
-      //    receberString("Nome do estudante: ", user.nome, MAX_NOME); // Receber o nome do estudante
-      //    do
-      //    {
-      //       receberString("Email do estudante: ", user.email, MAX_EMAIL); // Receber o email do estudante
-      //    } while (!validarEmail(user.email)); // Validar o email do estudante
-
-      //    users[*n_users] = user; // Adicionar o estudante ao array de utilizadores
-      //    (*n_users)++;           // Incrementar o número de utilizadores
-
-      //    return 0;               // Retornar 0 (sucesso)
-      // }
-
       int registarEstudante(User *users, int *n_users) {
          User user; // Variável para armazenar os dados do novo estudante
          user.id = *n_users + 1; // ID do novo estudante
@@ -938,6 +1024,11 @@ Codigos de status:
          Exercicio exercicio; // Variável para armazenar os dados do novo exercício
          exercicio.id = *n_exercicios + 1; // ID do novo exercício
          exercicio.id_ficha = receberInteiro("ID da ficha de exercícios: "); // Receber o ID da ficha de exercícios
+         if (validarExercicio(exercicios, *n_exercicios, exercicio.id_ficha) != 0)
+         { // Se o ID da ficha de exercícios não existir
+            printf("\nErro: O ID da ficha de exercícios %d não existe.\n", exercicio.id_ficha);
+            return 1; // Retornar 1 (aviso)
+         }
          for (int i = 0; i < *n_exercicios; i++)
          { // Percorrer o array de exercícios
             if (exercicios[i].id == exercicio.id_ficha)
@@ -952,7 +1043,6 @@ Codigos de status:
                return 0; // Retornar 0 (sucesso)
             }
          }
-         printf("Ficha de exercícios não encontrada.\n"); // Mostrar uma mensagem de erro
          return 1; // Retornar 1 (aviso)
       }
 
@@ -1000,13 +1090,21 @@ Codigos de status:
       7. Receber o ID do exercício
 
       */
-      int registarSubmissao(Submissao *submissoes, int *n_submissoes)
+      int registarSubmissao(Submissao *submissoes, int *n_submissoes, DadosMenu *dadosMenu)
       {
          Submissao submissao; // Variável para armazenar os dados da nova submissão
          submissao.id = *n_submissoes + 1; // ID da nova submissão
          submissao.id_user = receberInteiro("ID do estudante: "); // Receber o ID do estudante
          submissao.id_ficha = receberInteiro("ID da ficha de exercícios: "); // Receber o ID da ficha de exercícios
          submissao.id_exercicio = receberInteiro("ID do exercício: "); // Receber o ID do exercício
+
+         // Validar se os dados da submissão são válidos
+         if (validarSubmissao(dadosMenu->users, *dadosMenu->n_users, dadosMenu->fichas, *dadosMenu->n_fichas, dadosMenu->exercicios, *dadosMenu->n_exercicios, submissoes, *n_submissoes) != 0)
+         { // Se os dados da submissão não forem válidos
+            printf("\nErro: Os dados da submissão não são válidos.\n");
+            return 1; // Retornar 1 (aviso)
+         }
+
          receberData("Data da submissão: ", submissao.data); // Receber a data da submissão
          submissao.n_linhas = receberInteiro("Número de linhas: "); // Receber o número de linhas
          submissao.classificacao = receberInteiro("Classificação: "); // Receber a classificação
@@ -1106,14 +1204,14 @@ Codigos de status:
 
       int listarExercicios(Exercicio *exercicios, int n_exercicios)
       {
-         if (n_exercicios == 0)
+         if (n_exercicios == 0)                                                           // Se não existirem exercícios registados
          {
-            printf("Não existem exercícios registados.\n");
-            return 1;
+            printf("Não existem exercícios registados.\n");                               // Mostrar uma mensagem de aviso
+            return 1;                                                                     // Retornar 1 (aviso)
          }
-         for (int i = 0; i < n_exercicios; i++)
+         for (int i = 0; i < n_exercicios; i++)                                           // Percorrer o array de exercícios
          {
-            if (strlen(exercicios[i].nome) > 0)
+            if (strlen(exercicios[i].nome) > 0)                                           // Se o nome do exercício não estiver vazio
             {
                printf("\n");
                printf("ID: %d\n", exercicios[i].id);
@@ -1132,9 +1230,9 @@ Codigos de status:
 
       int listarSubmissoes(Submissao *submissoes, int n_submissoes)
       {
-         for (int i = 0; i < n_submissoes; i++)
+         for (int i = 0; i < n_submissoes; i++)                                           // Percorrer o array de submissões
          {
-            if (strlen(submissoes[i].data) > 0)
+            if (strlen(submissoes[i].data) > 0)                                           // Se a data da submissão não estiver vazia
             {
                printf("\n");
                printf("ID: %d\n", submissoes[i].id);
@@ -1215,8 +1313,8 @@ Codigos de status:
             {                                                       // Procurar o exercício com o ID recebido
                if (exercicios[i].id == id)                          // Se o ID do exercício for igual ao ID recebido
                {                                                    // Apagar o exercício
-                  exercicios[i].id = -1;                             // Definir o ID do exercício como -1
-                  (*n_exercicios)--;                                 // Decrementar o número de exercícios
+                  exercicios[i].id = -1;                            // Definir o ID do exercício como -1
+                  (*n_exercicios)--;                                // Decrementar o número de exercícios
                   return 0;                                         // Retornar 0 (sucesso)
                }
             }
@@ -1239,8 +1337,8 @@ Codigos de status:
             {                                                       // Procurar a submissão com o ID recebido
                if (submissoes[i].id == id)                          // Se o ID da submissão for igual ao ID recebido
                {                                                    // Apagar a submissão
-                  submissoes[i].id = -1;                             // Definir o ID da submissão como -1
-                  (*n_submissoes)--;                                 // Decrementar o número de submissões
+                  submissoes[i].id = -1;                            // Definir o ID da submissão como -1
+                  (*n_submissoes)--;                                // Decrementar o número de submissões
                   return 0;                                         // Retornar 0 (sucesso)
                }
             }
@@ -1330,9 +1428,9 @@ Codigos de status:
          }
 
          // Determinar o tamanho do ficheiro
-         fseek(ficheiro, 0, SEEK_END);
-         long tamanho = ftell(ficheiro);
-         rewind(ficheiro);
+         fseek(ficheiro, 0, SEEK_END);    // Coloca o cursor no final do ficheiro
+         long tamanho = ftell(ficheiro);  // Obtem o tamanho do ficheiro
+         rewind(ficheiro);                // Coloca o cursor no inicio do ficheiro
 
          *n_users = tamanho / sizeof(User); // Calcula o número de usuários no ficheiro
          fread(users, sizeof(User), *n_users, ficheiro);
@@ -1364,9 +1462,9 @@ Codigos de status:
          }
          
          // Determinar o tamanho do ficheiro
-         fseek(ficheiro, 0, SEEK_END);
-         long tamanho = ftell(ficheiro);
-         rewind(ficheiro);
+         fseek(ficheiro, 0, SEEK_END);    // Coloca o cursor no final do ficheiro
+         long tamanho = ftell(ficheiro);  // Obtem o tamanho do ficheiro
+         rewind(ficheiro);                // Coloca o cursor no inicio do ficheiro
 
          *n_fichas = tamanho / sizeof(FichaExercicios); // Calcula o número de fichas no ficheiro
          fread(fichas, sizeof(FichaExercicios), *n_fichas, ficheiro);
@@ -1398,9 +1496,10 @@ Codigos de status:
          }
 
          // Determinar o tamanho do ficheiro
-         fseek(ficheiro, 0, SEEK_END);
-         long tamanho = ftell(ficheiro);
-         rewind(ficheiro);
+         fseek(ficheiro, 0, SEEK_END);    // Coloca o cursor no final do ficheiro
+         long tamanho = ftell(ficheiro);  // Obtem o tamanho do ficheiro
+         rewind(ficheiro);                // Coloca o cursor no inicio do ficheiro
+
 
          *n_exercicios = tamanho / sizeof(Exercicio); // Calcula o número de exercícios no ficheiro
          fread(exercicios, sizeof(Exercicio), *n_exercicios, ficheiro);
@@ -1432,9 +1531,10 @@ Codigos de status:
          }
 
          // Determinar o tamanho do ficheiro
-         fseek(ficheiro, 0, SEEK_END);
-         long tamanho = ftell(ficheiro);
-         rewind(ficheiro);
+         fseek(ficheiro, 0, SEEK_END);    // Coloca o cursor no final do ficheiro
+         long tamanho = ftell(ficheiro);  // Obtem o tamanho do ficheiro
+         rewind(ficheiro);                // Coloca o cursor no inicio do ficheiro
+
 
          *n_submissoes = tamanho / sizeof(Submissao); // Calcula o número de submissões no ficheiro
          fread(submissoes, sizeof(Submissao), *n_submissoes, ficheiro);
@@ -1475,7 +1575,7 @@ Codigos de status:
          return 0;
       }
 
-      // Verificar se os ficheiros existem
+      // Verificar se os ficheiros existem se não existirem criar ficheiros vazios
       int ficheirosExistentes(int n_users, int n_fichas, int n_exercicios, int n_submissoes)
       {
          FILE *ficheiro_users = fopen("users.dat", "rb");
@@ -1485,10 +1585,22 @@ Codigos de status:
 
          if (ficheiro_users == NULL || ficheiro_fichas == NULL || ficheiro_exercicios == NULL || ficheiro_submissoes == NULL)
          {
-            return 0;
+            FILE *ficheiro_users = fopen("users.dat", "wb");
+            FILE *ficheiro_fichas = fopen("fichas.dat", "wb");
+            FILE *ficheiro_exercicios = fopen("exercicios.dat", "wb");
+            FILE *ficheiro_submissoes = fopen("submissoes.dat", "wb");
+
+            fclose(ficheiro_users);
+            fclose(ficheiro_fichas);
+            fclose(ficheiro_exercicios);
+            fclose(ficheiro_submissoes);
+
+            return -1;
          }
-         return 1;
+
+         return 0;
       }
+
 
    #pragma endregion
 
@@ -1598,6 +1710,7 @@ Codigos de status:
          printf("5. Sair\n");
          printf("\n");
          opcao = receberInteiro("Escolha uma opção: ");                           // Receber a opção do utilizador
+         printf("\n");
          return menuPrincipalSwitch(opcao, dadosMenu); // Chamar a função de switch para o menu principal
       }
 
@@ -1627,9 +1740,9 @@ Codigos de status:
          case 3:
             return menuEstatisticas(dadosMenu); // Chamar o menu de estatísticas
          case 4:
-            return guardarDadosEncurtado(dadosMenu); // Guardar os dados
+            return guardarDadosEncurtado(dadosMenu); // Guardar os dados usado para caso queira guardar os dados sem sair
          case 5:
-            // Guardar os dados antes de sair
+            // Guardar os dados antes e terminar o programa
             return guardarDadosEncurtado(dadosMenu);
          default:
             printf("Opção inválida.\n");
@@ -1650,6 +1763,7 @@ Codigos de status:
          printf("6. Voltar\n");
          printf("\n");
          opcao = receberInteiro("Escolha uma opção: "); // Receber a opção do utilizador
+         printf("\n");
          return menuConsultarDadosSwitch(opcao, dadosMenu); // Chamar a função de switch para o menu de consultar dados
       }
 
@@ -1686,6 +1800,7 @@ Codigos de status:
          printf("5. Voltar\n");
          printf("\n");
          opcao = receberInteiro("Escolha uma opção: "); // Receber a opção do utilizador
+         printf("\n");
          return menuListagemDadosSwitch(opcao, dadosMenu); // Chamar a função de switch para o menu de consultar dados
       }
 
@@ -1729,6 +1844,7 @@ Codigos de status:
          printf("5. Voltar\n");
          printf("\n");
          opcao = receberInteiro("Escolha uma opção: "); // Receber a opção do utilizador
+         printf("\n");
          return menuRegistarDadosSwitch(opcao, dadosMenu); // Chamar a função de switch para o menu de registar dados
       }
 
@@ -1744,7 +1860,7 @@ Codigos de status:
          case 3:
             return registarExercicio(dadosMenu->exercicios, dadosMenu->n_exercicios); // Registar Exercício
          case 4:
-            return registarSubmissao(dadosMenu->submissoes, dadosMenu->n_submissoes); // Registar Submissão
+            return registarSubmissao(dadosMenu->submissoes, dadosMenu->n_submissoes, dadosMenu); // Registar Submissão
          case 5:
             return 0; // Voltar
          default:
@@ -1762,7 +1878,9 @@ Codigos de status:
          printf("2. Média das classificações das submissões realizadas\n");
          printf("3. Percentagem de exercícios resolvidos em cada ficha\n");
          printf("4. Voltar\n");
+         printf("\n");
          opcao = receberInteiro("Escolha uma opção: "); // Receber a opção do utilizador
+         printf("\n");
          return menuEstatisticasSwitch(opcao, dadosMenu); // Chamar a função de switch para o menu de estatísticas
       }
 
