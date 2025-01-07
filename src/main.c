@@ -465,6 +465,17 @@ int menuRegistarDadosSwitch(int opcao, DadosMenu *dadosMenu);
 int menuEstatisticas(DadosMenu *dadosMenu);
 int menuEstatisticasSwitch(int opcao, DadosMenu *dadosMenu);
 
+
+// Testes ----------------------
+
+void popularUsers(User *users, int *n_users);
+void popularFichas(FichaExercicios *fichas, int *n_fichas);
+void popularExercicios(Exercicio *exercicios, int *n_exercicios);
+void popularSubmissao(Submissao *submissoes, int *n_submissoes);
+void popularDadosTeste(User *users, int *n_users, FichaExercicios *fichas, int *n_fichas, Exercicio *exercicios, int *n_exercicios, Submissao *submissoes, int *n_submissoes);
+int lerFicheiroConfiguracao();
+
+
 #pragma endregion
 
 #pragma region Main
@@ -492,6 +503,11 @@ int menuEstatisticasSwitch(int opcao, DadosMenu *dadosMenu);
 
       logo(0);
       DadosMenu dadosMenu = {users, &n_users, fichas, &n_fichas, exercicios, &n_exercicios, submissoes, &n_submissoes};
+
+      if(lerFicheiroConfiguracao() == 1){
+         popularDadosTeste(users, &n_users, fichas, &n_fichas, exercicios, &n_exercicios, submissoes, &n_submissoes);
+      }
+
 
       int opcao; // Variável para armazenar a opção escolhida pelo utilizador
       do
@@ -1358,11 +1374,12 @@ Codigos de status:
          for (int i = 0; i < n_submissoes; i++)
          { // Percorrer o array de submissões
             if (submissoes[i].id_user == id_user)
-            {           // Se o ID do estudante for igual ao ID recebido
+            { // Se o ID do estudante for igual ao ID recebido
                total++; // Incrementar o total de submissões
             }
          }
-         return total;  // Retorna o total de submissões
+         printf("Total de submissões realizadas: %d\n", total); // Mostrar o total de submissões
+         return 0; // Retornar 0 (sucesso)
       }
 
       // Média das classificações das submissões realizadas.
@@ -1373,7 +1390,8 @@ Codigos de status:
          {                                        // Percorrer o array de submissões
             total += submissoes[i].classificacao; // Somar a classificação ao total
          }
-         return (float)total / n_submissoes; // Calcular a média das classificações
+         printf("Média das classificações: %.2f\n", (float)total / n_submissoes); // Mostrar a média das classificações
+         return 0; // Retornar 0 (sucesso)
       }
 
       // Percentagem de exercícios resolvidos em cada ficha.
@@ -1387,8 +1405,11 @@ Codigos de status:
                total++; // Incrementar o total de exercícios
             }
          }
-         return (float)total / n_exercicios * 100; // Calcular a percentagem de exercícios resolvidos
+         printf("Percentagem de exercícios resolvidos: %.2f%%\n", (float)total / n_exercicios * 100); // Mostrar a percentagem de exercícios resolvidos
+         return 0; // Retornar 0 (sucesso)
       }
+
+
 
       #pragma endregion
 
@@ -1644,7 +1665,7 @@ Codigos de status:
          }
          return false; // O ID da ficha de exercícios não existe
       }
-
+          
       // Verificar se um ID de exercício já existe
       bool idExercicioExiste(Exercicio *exercicios, int n_exercicios, int id)
       {
@@ -1657,7 +1678,7 @@ Codigos de status:
          }
          return false; // O ID do exercício não existe
       }
-
+        
       // Verificar se um ID de submissão já existe
       bool idSubmissaoExiste(Submissao *submissoes, int n_submissoes, int id)
       {
@@ -1676,13 +1697,23 @@ Codigos de status:
 
       // LIMITE DE 25 linhas por função
       // Todos os menus e funções de interface recebem os ponteiros para os arrays e dados necessários
+      int logoText()
+      {
+         printf("██ ███    ██ ███████ ████████ ██ ████████ ██    ██ ████████  ██████      ██████   ██████  ██      ██ ████████ ███████  ██████ ███    ██ ██  ██████  ██████ \n");
+         printf("██ ████   ██ ██         ██    ██    ██    ██    ██    ██    ██    ██     ██   ██ ██    ██ ██      ██    ██    ██      ██      ████   ██ ██ ██      ██    ██ \n");
+         printf("██ ██ ██  ██ ███████    ██    ██    ██    ██    ██    ██    ██    ██     ██████  ██    ██ ██      ██    ██    █████   ██      ██ ██  ██ ██ ██      ██    ██ \n");
+         printf("██ ██  ██ ██      ██    ██    ██    ██    ██    ██    ██    ██    ██     ██      ██    ██ ██      ██    ██    ██      ██      ██  ██ ██ ██ ██      ██    ██ \n");
+         printf("██ ██   ████ ███████    ██    ██    ██     ██████     ██     ██████      ██       ██████  ███████ ██    ██    ███████  ██████ ██   ████ ██  ██████  ██████  \n\n");
 
+         printf("██████  ███████     ██      ███████ ██ ██████  ██  █████                                                                                                     \n");
+         printf("██   ██ ██          ██      ██      ██ ██   ██ ██ ██   ██                                                                                                   \n");
+         printf("██   ██ █████       ██      █████   ██ ██████  ██ ███████                                                                                                   \n");
+         printf("██   ██ ██          ██      ██      ██ ██   ██ ██ ██   ██                                                                                                   \n");
+         printf("██████  ███████     ███████ ███████ ██ ██   ██ ██ ██   ██                                                                                                   \n\n");
+      }
       int logo(int status)
       {
-         printf("--------------------------------------------\n");
-         printf("Politécnico de Leiria\n");
-         printf("Escola Superior de Tecnologia e Gestão\n");
-         printf("--------------------------------------------\n");
+         logoText();
 
          if(status == 0)
          {
@@ -1909,3 +1940,125 @@ Codigos de status:
 
 
 
+// ESTE CÓDIGO NÃO FAZ PARTE DO PROGRAMA PRINCIPAL, SERVE APENAS COMO FORMA DE 
+// PREPARAR OS DADOS PARA TESTES, E ETC.
+#pragma region Testes
+
+   void popularUsers(User *users, int *n_users)
+   {
+      User user1 = {1, 2210111, "João Silva", "joap.s@ipleiria"};
+      User user2 = {2, 2210112, "Maria Santos", "maria.s@ipleiria"};
+      User user3 = {3, 2210113, "Pedro Jesus", "pedro.j@ipleiria"};
+      User user4 = {4, 2210114, "Ana Costa", "ana.c@ipleiria"};
+
+      users[0] = user1;
+      users[1] = user2;
+      users[2] = user3;
+      users[3] = user4;
+
+      *n_users = 4;
+   }
+
+   void popularFichas(FichaExercicios *fichas, int *n_fichas)
+   {
+      FichaExercicios ficha1 = {1, "Ficha 1", 3, "2021-12-01"};
+      FichaExercicios ficha2 = {2, "Ficha 2", 2, "2021-12-02"};
+      FichaExercicios ficha3 = {3, "Ficha 3", 4, "2021-12-03"};
+
+      fichas[0] = ficha1;
+      fichas[1] = ficha2;
+      fichas[2] = ficha3;
+
+      *n_fichas = 3;
+   }
+
+   void popularExercicios(Exercicio *exercicios, int *n_exercicios)
+   {
+      Exercicio exercicio1 = {1, 1, "Exercício 1", 1, "C"};
+      Exercicio exercicio2 = {2, 1, "Exercício 2", 2, "C"};
+      Exercicio exercicio3 = {3, 1, "Exercício 3", 3, "C"};
+      Exercicio exercicio4 = {4, 2, "Exercício 1", 1, "C"};
+      Exercicio exercicio5 = {5, 2, "Exercício 2", 2, "C"};
+      Exercicio exercicio6 = {6, 3, "Exercício 1", 1, "C"};
+      Exercicio exercicio7 = {7, 3, "Exercício 2", 2, "C"};
+      Exercicio exercicio8 = {8, 3, "Exercício 3", 3, "C"};
+      Exercicio exercicio9 = {9, 3, "Exercício 4", 4, "C"};
+
+      exercicios[0] = exercicio1;
+      exercicios[1] = exercicio2;
+      exercicios[2] = exercicio3;
+      exercicios[3] = exercicio4;
+      exercicios[4] = exercicio5;
+      exercicios[5] = exercicio6;
+      exercicios[6] = exercicio7;
+      exercicios[7] = exercicio8;
+      exercicios[8] = exercicio9;
+
+      *n_exercicios = 9;
+   }
+
+   void popularSubmissao(Submissao *submissoes, int *n_submissoes)
+   {
+      Submissao submissao1 = {1, 1, 1, 1, "2021-12-01", 100, 10};
+      Submissao submissao2 = {2, 1, 1, 2, "2021-12-01", 200, 20};
+      Submissao submissao3 = {3, 1, 1, 3, "2021-12-01", 300, 30};
+      Submissao submissao4 = {4, 2, 2, 4, "2021-12-02", 400, 40};
+      Submissao submissao5 = {5, 2, 2, 5, "2021-12-02", 500, 50};
+      Submissao submissao6 = {6, 3, 3, 6, "2021-12-03", 600, 60};
+      Submissao submissao7 = {7, 3, 3, 7, "2021-12-03", 700, 70};
+      Submissao submissao8 = {8, 3, 3, 8, "2021-12-03", 800, 80};
+      Submissao submissao9 = {9, 3, 3, 9, "2021-12-03", 900, 90};
+
+      submissoes[0] = submissao1;
+      submissoes[1] = submissao2;
+      submissoes[2] = submissao3;
+      submissoes[3] = submissao4;
+      submissoes[4] = submissao5;
+      submissoes[5] = submissao6;
+      submissoes[6] = submissao7;
+      submissoes[7] = submissao8;
+      submissoes[8] = submissao9;
+
+      *n_submissoes = 9;
+   }
+
+   // População de dados de teste
+   void popularDadosTeste(User *users, int *n_users, FichaExercicios *fichas, int *n_fichas, Exercicio *exercicios, int *n_exercicios, Submissao *submissoes, int *n_submissoes)
+   {
+      popularUsers(users, n_users);
+      popularFichas(fichas, n_fichas);
+      popularExercicios(exercicios, n_exercicios);
+      popularSubmissao(submissoes, n_submissoes);
+   }
+
+   // Usar funções que já existem para ler o ficheiro de configuração, se não existir criar um ficheiro de configuração com valores por defeito	
+   // buscar se o ficheiro possui debug=1 ou debug=0 devolve 1 ou 0 respetivamente
+
+   // Ler ficheiro de configuração
+   int lerFicheiroConfiguracao()
+   {
+      FILE *ficheiro = fopen("configuracao.txt", "r");            // Abrir o ficheiro de configuração para leitura
+      if (ficheiro == NULL)                                       // Se o ficheiro não existir
+      {
+         FILE *ficheiro = fopen("configuracao.txt", "w");         // Criar o ficheiro de configuração
+         fprintf(ficheiro, "debug=0");                            // Escrever o valor por defeito
+         fclose(ficheiro);                                        // Fechar o ficheiro
+         return 0;
+      }
+
+      char linha[100];                                            // Array para armazenar a linha lida
+      while (fgets(linha, 100, ficheiro) != NULL)                 // Enquanto houver linhas para ler
+      {
+         if (strstr(linha, "debug=") != NULL)                     // Se a linha contiver a palavra debug
+         {
+            char *valor = strtok(linha, "=");                     // Separar a linha pelo sinal de igual
+            valor = strtok(NULL, "=");                            // Obter o valor
+            return atoi(valor);                                   // Converter o valor para inteiro e retornar
+         }
+      }
+
+      fclose(ficheiro);
+      return 0;
+   }
+
+#pragma endregion
